@@ -1,10 +1,14 @@
-# pty
+# pty (forked version)
 
 Pty is a Go package for using unix pseudo-terminals.
 
+## pty.Start2
+
+stdout and stderr separated.
+
 ## Install
 
-    go get github.com/kr/pty
+    go get github.com/erukiti/pty
 
 ## Example
 
@@ -12,7 +16,7 @@ Pty is a Go package for using unix pseudo-terminals.
 package main
 
 import (
-	"github.com/kr/pty"
+	"github.com/erukiti/pty"
 	"io"
 	"os"
 	"os/exec"
@@ -20,7 +24,7 @@ import (
 
 func main() {
 	c := exec.Command("grep", "--color=auto", "bar")
-	f, err := pty.Start(c)
+	f, e, err := pty.Start2(c)
 	if err != nil {
 		panic(err)
 	}
@@ -32,5 +36,6 @@ func main() {
 		f.Write([]byte{4}) // EOT
 	}()
 	io.Copy(os.Stdout, f)
+	io.Copy(os.Stderr, e)
 }
 ```

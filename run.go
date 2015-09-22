@@ -26,3 +26,27 @@ func Start(c *exec.Cmd) (pty *os.File, err error) {
 	}
 	return pty, err
 }
+
+func Start2(c *exec.Cmd) (pty *os.File, stderr *os.File, err error) {
+	stderr, w, err := os.Pipe()
+	if err != nil {
+		return nil, nil, err
+	}
+	pty, tty, err := Open()
+	if err != nil {
+		return nil, nil, err
+	}
+	defer tty.Close()
+
+	c.Stdout = tty
+	c.Stdin = tty
+	c.Stderr = w
+	c.SysProcAttr = &syscall.SysProcAttr{Setctty: true, Setsid: true}
+	err = c.Start()
+	if err != nil {
+		pty.Close()
+		return nil, nil, err
+	}
+
+	return pty, stderr, nil
+}
